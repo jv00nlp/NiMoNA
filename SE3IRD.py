@@ -100,6 +100,8 @@ Dn = np.zeros((len(ts),len(M)))
 
 U = [Sn[0,:], En[0,:], Iyn[0,:], Imn[0,:], Ion[0,:], Rn[0,:], Dn[0,:]]
 
+# the following lines are only for the last plot in the right corner, where all the cities are added
+
 sumS        =   np.zeros(np.shape(ts))   # array for total numbers of all cities
 sumE        =   np.zeros(np.shape(ts))
 sumIy       =   np.zeros(np.shape(ts))
@@ -108,7 +110,7 @@ sumIo       =   np.zeros(np.shape(ts))
 sumR        =   np.zeros(np.shape(ts))
 sumD        =   np.zeros(np.shape(ts))
 
-sumS[0]     =   sum(Sn[0,:])
+sumS[0]     =   sum(Sn[0,:])            # generate first entry from ext. data
 sumIy[0]    =   sum(Iyn[0,:])
 sumIm[0]    =   sum(Imn[0,:])
 sumIo[0]    =   sum(Ion[0,:])
