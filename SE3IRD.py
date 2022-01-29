@@ -203,4 +203,22 @@ print('Overall ' + str(round(max(sumD))) + ' people have died after ' + str(Tend
 
 
 
+# plot sum plot again in one single figure
+
+fig2 = plt.figure(2)
+plt.plot(ts, sumS,'C0-')
+plt.plot(ts, sumE, 'C9-', linewidth = 1)
+plt.plot(ts, sumIy, 'C3--', linewidth = 0.5)
+plt.plot(ts, sumIm, 'C3--', linewidth = 0.6)
+plt.plot(ts, sumIo, 'C3--', linewidth = 0.7)
+plt.plot(ts, sumIy+sumIm+sumIo, 'C3-')  # plots total sum of all Infected
+plt.plot(ts, sumR, 'C2-')
+plt.plot(ts, sumD, 'C4-')
+plt.annotate(str(round(max(sumD)))+' dead!',(Tend,max(sumD)), xytext=(Tend+10, 0), arrowprops=dict(arrowstyle= '-|>')) # highlight total death count
+
+plt.title('total numbers for all cities combined', fontsize=10)
+plt.xlabel('t in days')
+plt.show()
+
+
 
