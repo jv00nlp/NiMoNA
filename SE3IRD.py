@@ -64,7 +64,7 @@ dt = 0.1        # timestep
 Tend = 150      # Number of days
 Nt = int(Tend/dt)
 ts = np.linspace(0, Tend, Nt)
-
+    
 # PANDEMIC PARAMETERS
 
 alpha = 0.35    # infection rate    (from S to E)
@@ -73,8 +73,8 @@ gamma = 0.3     # transmission rate (from E to I)
 
 age_dist = [0.18, 0.62, 0.2] # 18% of the population are <20y. old, 62% are 20-66y. old, 20% are 67 or older
 
-leth = [0.001, 0.02, 0.09]  # lethality for 3 age groups
-rec = [1 - leth[0], 1 - leth[1], 1 - leth[2]]   # recovery rate for 2 age groups, calculated via lethality
+leth = [0.001, 0.02, 0.09]  # lethality for 3 age groups in percentage
+rec = [1 - leth[0], 1 - leth[1], 1 - leth[2]]   # recovery rate for 2 age groups, calculated via lethality (everyone, who doesn't die, recovers)
 
  
 
