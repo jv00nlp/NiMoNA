@@ -12,7 +12,6 @@ def replace_placeholders(AModelAdjacencyMatrixStr,
                          AValueList,
                          ACategoryList,
                          ACategory):
-
     adjacencyMatrixFinal = np.copy(AModelAdjacencyMatrixStr)
 
     for row in range(0, len(AModelAdjacencyMatrixStr)):
@@ -21,9 +20,8 @@ def replace_placeholders(AModelAdjacencyMatrixStr,
             for placeholder in range(0, len(APlaceholderList)):
                 if ess.string_contains(currentEntry, APlaceholderList[placeholder]) != NOT_CONTAINS \
                         and ACategoryList[placeholder] == ACategory:
-                    currentEntry = np.char.replace(currentEntry,
-                                                    APlaceholderList[placeholder],
-                                                    str(AValueList[placeholder]))
+                    currentEntry = currentEntry.replace(APlaceholderList[placeholder],
+                                                        str(round(float(AValueList[placeholder]), 8)))
 
             adjacencyMatrixFinal[row, column] = currentEntry
 
@@ -47,7 +45,6 @@ def replace_time_dependencies(AModelAdjacencyMatrixStr,
                               ACategoryList,
                               ACompartment,
                               ACurrentTimeStep):
-
     workingValueList = []
     evaluatedValueList = []
 
@@ -75,7 +72,6 @@ def compartment_model_core(ACompartment,
                            AModelPlaceholderCategories,
                            AAdjacencyMatrixPopulation,
                            ACurrentTimeStep):
-
     numberOfPlaceholders = 0
     numberOfVariables = 0
     numberOfTimeDeps = 0
@@ -110,16 +106,16 @@ def compartment_model_core(ACompartment,
 
         modelAdjacencyMatrixCitiesVals.append(
             replace_variables(AModelAdjacencyMatrix,
-                                  AModelPlaceholders,
-                                  valueListVariables[city_],
-                                  AModelPlaceholderCategories))
+                              AModelPlaceholders,
+                              valueListVariables[city_],
+                              AModelPlaceholderCategories))
 
         modelAdjacencyMatrixCities.append(replace_time_dependencies(modelAdjacencyMatrixCitiesVals[city_],
-                                                                        AModelPlaceholders,
-                                                                        AModelPlaceholderValues,
-                                                                        AModelPlaceholderCategories,
-                                                                        workingCompartment,
-                                                                        ACurrentTimeStep))
+                                                                    AModelPlaceholders,
+                                                                    AModelPlaceholderValues,
+                                                                    AModelPlaceholderCategories,
+                                                                    workingCompartment,
+                                                                    ACurrentTimeStep))
 
         modelAdjacencyMatrixEvaluated.append(ess.evaluate_string_matrix(np.array(modelAdjacencyMatrixCities[city_])))
         result[city_] = np.matmul(np.transpose(modelAdjacencyMatrixEvaluated[city_]), workingCompartment[city_])
@@ -155,7 +151,7 @@ modelPlaceholderValues = ess.read_sir_csv(PATH_SIR_PLACEHOLDERS, AColumns=VALUE_
 modelPlaceholderCategories = ess.read_sir_csv(PATH_SIR_PLACEHOLDERS, AColumns=CATEGORY_COL)
 
 modelAdjMatrix = replace_placeholders(modelAdjMatrix, modelPlaceholders, modelPlaceholderValues,
-                                          modelPlaceholderCategories, CATEGORY_PLACEHOLDER)
+                                      modelPlaceholderCategories, CATEGORY_PLACEHOLDER)
 
 timeBefore = time.time()
 for iteration in ITERATION_STEPS:
@@ -168,9 +164,10 @@ for iteration in ITERATION_STEPS:
                                 ADJACENCY_MATRIX_CITIES, TIME_STEPS[iteration]],
                                TIME_STEP)
 
-    for city in COMPARTMENTS:
-        timeStepsOfCompartments[city, iteration] = Compartment[city]
-        sumOfCities[city, iteration] = sum(Compartment[city])
+    for comp in COMPARTMENTS:
+        timeStepsOfCompartments[comp, iteration] = Compartment[comp]
+        sumOfCities[comp, iteration] = sum(Compartment[comp])
+    print("Iteration {it} finished".format(it=str(iteration)))
 
 timeAfter = time.time()
 print("Duration: {dt}s".format(dt=timeAfter - timeBefore))
@@ -179,7 +176,7 @@ populationCSV = ess.read_population_csv(PATH_POPULATIONS_CSV,
                                         NUMBER_OF_CITIES,
                                         TOTAL_COLUMNS)
 
-districtNameList = populationCSV[INDEX_CITY_NAMES]  # to read first row of populations2.csv, to use for plot titles
+districtNameList = populationCSV[INDEX_CITY_NAMES]
 citiesPositionX = populationCSV[INDEX_POS_X]
 citiesPositionY = populationCSV[INDEX_POS_Y]
 
@@ -188,7 +185,6 @@ def create_network_plot(ADirectory,
                         ASaveFigs=False,
                         AOnlyCalcLast=True,
                         APlotFigures=False):
-
     for city_ in CITIES:
         citiesPositionX[city_] = float(citiesPositionX[city_])
         citiesPositionY[city_] = float(citiesPositionY[city_])
@@ -208,14 +204,17 @@ def create_network_plot(ADirectory,
                         color=CONNECTION_COLOR, zorder=Z_ORDER_NETWORK_LINES)
 
         for city_ in CITIES:
-            ax.scatter(citiesPositionX[city_], citiesPositionY[city_], marker='o',
-                       color=ess.infection_gradient(timeStepsOfCompartments[1, j, city_], POPULATION[city_]),
-                       zorder=Z_ORDER_CITY_POINTS)
+            if POPULATION[city_] > MINIMUM_POPULATION:
+                totalInfectiousPerCity = sum(timeStepsOfCompartments[2:4, j, city_])
+                ax.scatter(citiesPositionX[city_], citiesPositionY[city_], marker='o',
+                           color=ess.infection_gradient(totalInfectiousPerCity, POPULATION[city_]),
+                           zorder=Z_ORDER_CITY_POINTS)
 
-        for k, txt in enumerate(districtNameList):
-            ax.annotate(txt, (citiesPositionX[k] + ANNOTATION_X_OFFSET * len(districtNameList[k]),
-                              citiesPositionY[k] + ANNOTATION_Y_OFFSET), weight='bold', color=ANNOTATION_COLOR,
-                        zorder=Z_ORDER_CITY_NAMES)
+        #for k, txt in enumerate(districtNameList):
+        #    if POPULATION[k] > MINIMUM_POPULATION:
+        #        ax.annotate(txt, (citiesPositionX[k] + ANNOTATION_X_OFFSET * len(districtNameList[k]),
+        #                          citiesPositionY[k] + ANNOTATION_Y_OFFSET), weight='bold', color=ANNOTATION_COLOR,
+        #                    zorder=Z_ORDER_CITY_NAMES)
 
         if APlotFigures:
             plt.show()
@@ -229,6 +228,7 @@ def create_network_plot(ADirectory,
 
 
 def plot_calculation_results():
+    plt.figure(figsize=(16, 9), dpi=80)
     for city_ in CITIES:
         plt.subplot(MODEL_NETWORK_ROWS, MODEL_NETWORK_COLUMNS, city_ + 1)
         for g in COMPARTMENTS:
@@ -258,7 +258,16 @@ def plot_calculation_results():
     plt.show()
     plt.clf()
 
+    for i in COMPARTMENTS:
+        plt.plot(TIME_STEPS, timeStepsOfCompartments[i, :, 9], label=str(i))
 
-# create_network_plot("./Network", save_figs=False, only_calc_last=True, plot_figures=True)
+    plt.grid()
+    plt.legend()
+    plt.xlabel("t in days")
+    plt.savefig('./MuensterPlot.png')
+    plt.show()
+
+
 plot_calculation_results()
-# ess.create_video_of_images("./Network")
+create_network_plot("./Network", ASaveFigs=True, AOnlyCalcLast=False, APlotFigures=False)
+ess.create_video_of_images("./Network")

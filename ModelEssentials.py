@@ -11,8 +11,9 @@ from moviepy.editor import VideoFileClip
 
 from Const import *
 
+
 DEFAULT_DELIMITER = ','
-PATH_POPULATIONS_CSV = 'CSVs/Populations2.csv'
+PATH_POPULATIONS_CSV = 'CSVs/PopulationNRW.csv'
 COLS_NO_COMPARTMENT = 3
 
 
@@ -135,9 +136,9 @@ def get_total_columns_in_population():
     return len(np.transpose(read_sir_csv(PATH_POPULATIONS_CSV)))
 
 
-def tuple_of_compartments_cols(ANumberOfCompartments):
+def create_tuple_of_col_num(AColNumber, AStartIndex=1):
     cols = []
-    for i in range(1, ANumberOfCompartments + 1):
+    for i in range(AStartIndex, AColNumber + 1):
         cols.append(i)
 
     return tuple(cols)
