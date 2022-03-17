@@ -1,0 +1,7 @@
+-infection_rate * (infectious_y + infectious_m + infectious_o)/total_population,infection_rate * (infectious_y + infectious_m + infectious_o)/total_population,0,0,0,0,0
+0,-transition_rate,transition_rate * 0.2,transition_rate * 0.4,transition_rate * 0.4,0,0
+0,0,-remove_rate,0,0,remove_rate * 0.02,remove_rate * 0.98
+0,0,0,-remove_rate,0,remove_rate * 0.02,remove_rate * 0.98
+0,0,0,0,-remove_rate,remove_rate * 0.02,remove_rate * 0.98
+0,0,0,0,0,0,0
+0,0,0,0,0,0,0
